@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="siteTitle">LUGARES | Secure Portal</title>
+    <link rel="stylesheet" href="lugares.css">
+</head>
+<body onload="initApp()">
+
+    <div class="full-banner">
+        <img src="logo.png" alt="Lugares Logo" class="main-logo">
+        <div class="brand-box">
+            <b id="displayBrand" class="brand-name">LUGARES</b>
+            <div style="text-align:right; font-size:14px; opacity:0.7">Worker Dashboard</div>
+        </div>
+    </div>
+
+    <div class="sub-nav">
+        <a id="btn-staff" class="nav-link" onclick="showSection('staff')">Staff</a>
+        <a id="btn-exec" class="nav-link" onclick="showSection('exec')" style="color:var(--gold)">Executives</a>
+        <a id="btn-finance" class="nav-link" onclick="showSection('finance')" style="color:var(--money)">Bank Ledger</a>
+        <a id="btn-logs" class="nav-link" onclick="showSection('logs')" style="color:var(--red)">Security Logs</a>
+        <a id="btn-req" class="nav-link" onclick="showSection('req')">Requests</a>
+        <a id="btn-add" class="nav-link" onclick="showSection('add')">Register</a>
+    </div>
+
+    <div id="win-staff" class="content-window"><h2>Staff Directory</h2><div id="staffList"></div></div>
+    <div id="win-exec" class="content-window"><h2>Executive Board</h2><div id="execList"></div></div>
+    <div id="win-req" class="content-window"><h2>Customer Requests</h2><div id="reqList"></div></div>
+    
+    <div id="win-logs" class="content-window">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2 style="color:var(--red)">Audit Trail & Security Logs</h2>
+            <button onclick="clearAuditLogs()" style="background:none; border:1px solid var(--red); color:var(--red); padding:5px 15px; border-radius:5px; cursor:pointer;">Wipe Logs</button>
+        </div>
+        <input type="text" id="logSearch" placeholder="Search logs..." onkeyup="renderLogs()">
+        <div id="auditLogList" style="background:rgba(0,0,0,0.2); border-radius:10px; padding:10px; margin-top:10px; max-height:450px; overflow-y:auto;"></div>
+    </div>
+
+    <div id="win-finance" class="content-window">
+        <div id="fin-lock" style="text-align:center; padding:50px; border:1px dashed var(--red);">
+            <h3>🔒 Restricted Access</h3>
+            <input type="password" id="finPass" placeholder="Master Password">
+            <button onclick="unlockFin()" style="padding:15px 40px; background:var(--money); color:black; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">AUTHORIZE</button>
+        </div>
+        <div id="fin-content" style="display:none;">
+            <h2 style="color:var(--money)">Financial Ledger</h2>
+            <div id="txList"></div>
+        </div>
+    </div>
+
+    <div id="win-add" class="content-window">
+        <h2>Register Personnel</h2>
+        <input type="text" id="regN" placeholder="Full Name">
+        <input type="text" id="regR" placeholder="Role (e.g. Executive Director)">
+        <input type="password" id="regP" placeholder="Master Authorization">
+        <button onclick="savePersonnel()" style="width:100%; padding:15px; background:var(--accent); color:black; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">REGISTER</button>
+    </div>
+
+    <div class="settings-btn" onclick="openSettings()">⚙️</div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-box">
+            <h3 style="margin-top:0; color:var(--accent);">Settings</h3>
+            <div style="background:rgba(255,59,48,0.1); padding:15px; border-radius:10px; border:1px solid var(--red); margin-bottom:20px;">
+                <input type="password" id="oldP" placeholder="Old Password">
+                <input type="password" id="newP" placeholder="New Password">
+                <button onclick="changePass()" style="width:100%; padding:8px; background:var(--red); color:white; border:none; border-radius:5px; cursor:pointer;">CHANGE PASSWORD</button>
+            </div>
+            <button onclick="setTheme('default')" style="width:100%; padding:10px; background:#0f2027; color:#00d2ff; border:1px solid #00d2ff; cursor:pointer; margin-bottom:10px;">REVERT TO CYAN</button>
+            <button onclick="closeSettings()" style="width:100%; background:none; border:none; color:white; opacity:0.5; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <script src="lugares.js"></script>
+</body>
+</html>
