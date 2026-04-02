@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Human Resource Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      padding: 15px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .delete-btn {
+      background-color: #f44336;
+      margin-top: 20px;
+    }
+    .delete-btn:hover {
+      background-color: #da190b;
+    }
+    #checkUpdateBtn {
+      margin-top: 20px;
+      background-color: #2196F3;
+    }
+    #checkUpdateBtn:hover {
+      background-color: #0b7dda;
+    }
+    .loader {
+      transform: rotateZ(45deg);
+      perspective: 1000px;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: #333;
+      position: relative;
+      margin: 20px auto;
+      display: none;
+    }
+    .loader:before,
+    .loader:after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: inherit;
+      height: inherit;
+      border-radius: 50%;
+      transform: rotateX(70deg);
+      animation: 1s spin linear infinite;
+    }
+    .loader:after {
+      color: #FF3D00;
+      transform: rotateY(70deg);
+      animation-delay: .4s;
+    }
+    @keyframes rotate {
+      0% { transform: translate(-50%, -50%) rotateZ(0deg); }
+      100% { transform: translate(-50%, -50%) rotateZ(360deg); }
+    }
+    @keyframes rotateccw {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(-360deg); }
+    }
+    @keyframes spin {
+      0%, 100% { box-shadow: .2em 0px 0 0px currentcolor; }
+      12% { box-shadow: .2em .2em 0 0 currentcolor; }
+      25% { box-shadow: 0 .2em 0 0px currentcolor; }
+      37% { box-shadow: -.2em .2em 0 0 currentcolor; }
+      50% { box-shadow: -.2em 0 0 0 currentcolor; }
+      62% { box-shadow: -.2em -.2em 0 0 currentcolor; }
+      75% { box-shadow: 0px -.2em 0 0 currentcolor; }
+      87% { box-shadow: .2em -.2em 0 0 currentcolor; }
+    }
+    /* Progress Bar Styles */
+    .progress-bar {
+      width: 80%;
+      height: 20px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+      display: none;
+    }
+    .progress {
+      height: 100%;
+      background-color: #4CAF50;
+      width: 0;
+      transition: width 0.3s ease;
+      border-radius: 10px;
+      text-align: center;
+      color: white;
+      line-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Human Resource Management Tool</h1>
+  
+  <div class="button-grid">
+    <button onclick="window.location.href='junior_officers_management.html'">Junior Officers Management</button>
+    <button onclick="window.location.href='leave.html'">Leave Tracking</button>
+    <button onclick="window.location.href='holidays.html'">Holidays Management</button>
+    <button onclick="window.location.href='duty_rosters.html'">Duty Roster Management</button>
+    <button onclick="window.location.href='planner.html'">Duty Roster Planner</button>
+    <button onclick="window.location.href='senior_officers.html'">Senior Officers Management</button>
+    <button onclick="window.location.href='civilian_staff_management.html'">Civilian Staff Management</button>
+    <button onclick="window.location.href='staff_movement.html'">Staff Movement</button>
+    <button onclick="window.location.href='special_operations.html'">Special Operations (Coming Soon)</button>
+    <button onclick="window.location.href='others.html'">Others Functions</button>
+    <button onclick="window.location.href='combine_nominal_rolls.html'">Combine Nominal Rolls</button>
+    <button onclick="window.location.href='contacts.html'">Contacts Management</button>
+    <button onclick="window.location.href='duty_roster_archive.html'">Archives</button>
+  </div>
+
+  <button class="delete-btn" onclick="deleteAllData()">Delete All Data</button>
+  <button class="delete-btn" id="closeAppBtn">Close App</button>
+  <button id="checkUpdateBtn">Check for Updates</button>
+  <button id="installUpdateBtn" style="display: none;">Install Update</button>
+
+  <div id="loading" class="loader"></div>
+  <div class="progress-bar">
+    <div id="progress" class="progress">0%</div>
+  </div>
+
+  <p id="appVersion"></p>
+
+  <script>
+    function toggleLoading(show) {
+      const loading = document.getElementById("loading");
+      const progressBar = document.querySelector(".progress-bar");
+      loading.style.display = show ? "block" : "none";
+      progressBar.style.display = show ? "block" : "none";
+    }
+
+    async function deleteAllData() {
+      if (!confirm('Are you sure you want to delete all data? This action cannot be undone.')) return;
+      toggleLoading(true);
+      try {
+        const response = await fetch('http://localhost:3000/deleteAllData', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const result = await response.json();
+        alert(result.message);
+      } catch (error) {
+        alert(`Error deleting data: ${error.message}`);
+      } finally {
+        toggleLoading(false);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      let closeInterval = null;
+      document.getElementById('closeAppBtn').addEventListener('click', function () {
+        const btn = this;
+        if (closeInterval) {
+          clearInterval(closeInterval);
+          closeInterval = null;
+          btn.textContent = 'Close App';
+          btn.disabled = false;
+        } else {
+          let seconds = 5;
+          btn.disabled = true;
+          btn.textContent = `Closing in ${seconds}...`;
+          closeInterval = setInterval(() => {
+            seconds--;
+            btn.textContent = `Closing in ${seconds}...`;
+            if (seconds <= 0) {
+              clearInterval(closeInterval);
+              closeInterval = null;
+              if (window.electronAPI && window.electronAPI.invoke) {
+                window.electronAPI.invoke('close-app');
+              } else {
+                window.close();
+              }
+            }
+          }, 1000);
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('checkUpdateBtn').addEventListener('click', async () => {
+        toggleLoading(true);
+        try {
+          const result = await window.electronAPI.checkForUpdates();
+          console.log('Update check result:', result);
+          alert(`Update check: ${result.message || JSON.stringify(result)}`);
+        } catch (error) {
+          console.error('Update check failed:', error);
+          alert(`Update check failed: ${error.message}`);
+        } finally {
+          toggleLoading(false);
+        }
+      });
+    });
+
+    // Handle update events
+    window.electronAPI.onUpdateAvailable((info) => {
+      console.log('Update available:', info);
+      toggleLoading(true);
+      document.getElementById('progress').style.width = '0%';
+      document.getElementById('progress').textContent = '0%';
+      alert(`🎉 A new version${info.version ? ` (${info.version})` : ''} is available! The update will start downloading automatically. Please wait...`);
+      document.getElementById('installUpdateBtn').style.display = 'none';
+    });
+
+    window.electronAPI.onUpdateDownloaded((info) => {
+      console.log('Update downloaded:', info);
+      toggleLoading(false);
+      document.getElementById('progress').style.width = '100%';
+      document.getElementById('progress').textContent = '100%';
+      alert(`✅ Update${info.version ? ` (${info.version})` : ''} downloaded! Click "Install Update" to finish updating. The app will restart after installation.`);
+      document.getElementById('installUpdateBtn').style.display = 'block';
+    });
+
+    window.electronAPI.on('update-error', (error) => {
+      console.log('Update error:', error);
+      toggleLoading(false);
+      alert(`⚠️ Oops! Something went wrong while updating: ${error}\nPlease try again later or contact support if the problem persists.`);
+    });
+
+    // Install update when button is clicked
+    document.getElementById('installUpdateBtn').addEventListener('click', async () => {
+      toggleLoading(true);
+      try {
+        await window.electronAPI.installUpdate();
+      } catch (error) {
+        console.error('Install update failed:', error);
+        alert(`⚠️ Sorry, the update could not be installed: ${error.message}\nPlease try again or restart the app.`);
+      } finally {
+        toggleLoading(false);
+      }
+    });
+
+    // New: Real-time download progress
+    window.electronAPI.on('download-progress', (percent) => {
+      const progress = document.getElementById('progress');
+      progress.style.width = `${percent}%`;
+      progress.textContent = `${percent}%`;
+      if (percent < 100) {
+        progress.textContent = `Downloading update... ${percent}%`;
+      } else {
+        progress.textContent = `Download complete!`;
+      }
+    });
+
+    // Show app version
+    document.addEventListener("DOMContentLoaded", () => {
+      let version = window.electronAPI?.getAppVersion?.();
+      if (version && typeof version === "object" && version.version) {
+        version = version.version;
+      }
+      if (typeof version !== "string") {
+        version = String(version);
+      }
+      document.getElementById("appVersion").textContent = `Version: ${version}`;
+    });
+  </script>
+</body>
+</html>
